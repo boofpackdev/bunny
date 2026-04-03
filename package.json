@@ -1,0 +1,25 @@
+{
+  "name": "hermes-cli",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Universal CLI client for Dockerized Hermes Agent",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "cac": "^3.0.4",
+    "picocolors": "^1.1.1",
+    "ora": "^8.1.1"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "^22.0.0",
+    "typescript": "^6.0.2"
+  },
+  "engines": {
+    "bun": ">=1.0.0"
+  }
+}

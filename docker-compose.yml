@@ -1,0 +1,32 @@
+# Example Docker Compose for running a Hermes Agent
+# This is just ONE example - hermes-cli works with ANY dockerized Hermes
+# Your Hermes may use vLLM, Ollama, or any other OpenAI-compatible backend
+
+version: '3.8'
+
+services:
+  hermes-agent:
+    image: vllm/vllm-openai:latest
+    container_name: hermes
+    ports:
+      - "8000:8000"
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+    command:
+      - "--model"
+      - "NousResearch/Nous-Hermes-2-Mistral-7B-DPO"
+      - "--host"
+      - "0.0.0.0"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
