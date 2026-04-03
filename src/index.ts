@@ -1,58 +1,24 @@
-import { resolveConfig } from './config';
-import { streamChat } from './stream';
-import {
-  startSpinner,
-  succeedSpinner,
-  failSpinner,
-  streamStart,
-  printError,
-} from './ui';
-import { HermesError, exitCodes } from './errors';
-import { parseArgs } from './cli';
-import type { CLIOptions } from './cli';
+import { exitCodes } from './errors';
+import { runCommand } from './cli/router';
+import { registerAskCommand } from './commands/ask';
+import { registerCronCommands } from './commands/cron';
+import { registerConfigCommands } from './commands/config';
+import { registerAgentCommands } from './commands/agent';
+import { registerInitCommand } from './commands/init';
 
+// Register all commands
+registerAskCommand();
+registerCronCommands();
+registerConfigCommands();
+registerAgentCommands();
+registerInitCommand();
+
+// Main entry point
 async function main() {
-  const { message, options } = parseArgs();
-
-  const stream = options.stream;
-  const jsonOutput = options.json;
-  const timeout = options.timeout;
-
-  startSpinner('Discovering Hermes endpoint...');
-
   try {
-    let endpoint = options.endpoint;
-    let auth: string | undefined;
-
-    if (!endpoint) {
-      const resolved = await resolveConfig();
-      endpoint = resolved.endpoint;
-      auth = resolved.auth;
-    }
-
-    succeedSpinner(`Connected to ${endpoint}`);
-    startSpinner('Waiting for response...');
-
-    streamStart();
-
-    await streamChat(message, {
-      endpoint,
-      stream,
-      jsonOutput,
-      timeout,
-      auth,
-    });
-
-    succeedSpinner('Response complete');
-    process.exit(exitCodes.SUCCESS);
+    await runCommand(process.argv.slice(2));
   } catch (error) {
-    if (error instanceof HermesError) {
-      failSpinner(error.message);
-      process.exit(error.code);
-    }
-
-    failSpinner('Unknown error');
-    printError(error instanceof Error ? error.message : String(error));
+    console.error('Fatal error:', error instanceof Error ? error.message : String(error));
     process.exit(exitCodes.CLI_ERROR);
   }
 }

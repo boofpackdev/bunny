@@ -52,3 +52,10 @@ export class DiscoveryError extends HermesError {
     this.name = 'DiscoveryError';
   }
 }
+
+export class ValidationError extends HermesError {
+  constructor(message: string) {
+    super(exitCodes.CLI_ERROR, message);
+    this.name = 'ValidationError';
+  }
+}
