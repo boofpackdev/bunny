@@ -1,6 +1,9 @@
 @echo off
 REM One-command Hermes CLI installer and runner for Windows
-REM Usage: run.bat "Hello Hermes!"
+REM Usage: 
+REM   run.bat "Hello Hermes!"                          (localhost:8642)
+REM   run.bat "Hello" -e http://server:8642           (custom endpoint)
+REM   set HERMES_ENDPOINT=http://server:8642 && run.bat "Hello"
 
 setlocal enabledelayedexpansion
 
@@ -38,3 +41,9 @@ if exist "%SRC_DIR%\src\index.ts" (
 echo.
 echo Running: %*
 call bun run "%SRC_DIR%\src\index.ts" %*
+
+if %ERRORLEVEL% neq 0 (
+    echo.
+    echo Tip: If connection failed, try:
+    echo   run.bat "message" -e http://YOUR_SERVER_IP:8642
+)
