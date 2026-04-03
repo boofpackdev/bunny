@@ -3,11 +3,11 @@ import { execSync } from 'child_process';
 import type { DockerContainer } from './types';
 
 export const config = {
-  defaultEndpoint: 'http://localhost:8000',
+  defaultEndpoint: 'http://localhost:8642',
   requestTimeout: 120_000,
   healthEndpoint: '/health',
   containerFilter: 'name=hermes',
-  hermesPort: 8000,
+  hermesPort: 8642,
 } as const;
 
 export async function discoverEndpoint(): Promise<string> {
