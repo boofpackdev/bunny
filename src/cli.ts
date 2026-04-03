@@ -1,4 +1,3 @@
-import { cac } from 'cac';
 import { exitCodes } from './errors';
 
 export interface CLIOptions {
@@ -8,44 +7,69 @@ export interface CLIOptions {
   timeout: number;
 }
 
-export function setupCLI() {
-  const cli = cac('hermes');
+function parseArgs(): { message?: string; options: CLIOptions } {
+  const args = process.argv.slice(2);
+  const options: CLIOptions = {
+    json: false,
+    stream: true,
+    timeout: 120000,
+  };
 
-  cli
-    .command('chat <message>', 'Send a message to a Dockerized Hermes Agent')
-    .option('-e, --endpoint <url>', 'Hermes endpoint URL (overrides auto-discovery)')
-    .option('--json', 'Output raw JSON response')
-    .option('--no-stream', 'Disable streaming, wait for full response')
-    .option('-t, --timeout <ms>', 'Request timeout in milliseconds', {
-      default: 120000,
-    })
-    .example('hermes chat "Hello, Hermes!"')
-    .example('hermes chat "What is 2+2?" --no-stream')
-    .example('hermes chat "Explain AI" -e http://localhost:9000')
-    .action((message: string, options: CLIOptions) => {
-      return { message, options };
-    });
-
-  cli.help();
-
-  return cli;
-}
-
-export function parseCLI() {
-  const cli = setupCLI();
-  const rawArgs = process.argv.slice(2);
-
-  // Handle empty args
-  if (rawArgs.length === 0) {
-    cli.outputHelp();
+  if (args.length === 0) {
+    printHelp();
     process.exit(exitCodes.CLI_ERROR);
   }
 
-  try {
-    const parsed = cli.parse(rawArgs);
-    return parsed;
-  } catch (error: any) {
-    console.error(`Error: ${error.message}`);
+  // Parse flags
+  const remaining: string[] = [];
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg === '--help' || arg === '-h') {
+      printHelp();
+      process.exit(0);
+    } else if (arg === '--json') {
+      options.json = true;
+    } else if (arg === '--no-stream') {
+      options.stream = false;
+    } else if (arg === '--endpoint' || arg === '-e') {
+      options.endpoint = args[++i];
+    } else if (arg === '--timeout' || arg === '-t') {
+      options.timeout = parseInt(args[++i], 10);
+    } else if (!arg.startsWith('-')) {
+      remaining.push(arg);
+    }
+  }
+
+  const message = remaining.join(' ');
+
+  if (!message) {
+    console.error('Error: No message provided');
+    printHelp();
     process.exit(exitCodes.CLI_ERROR);
   }
+
+  return { message, options };
 }
+
+function printHelp() {
+  console.log(`
+Hermes CLI - Universal client for Dockerized Hermes Agent
+
+Usage:
+  hermes <message> [options]
+
+Options:
+  -e, --endpoint <url>   Hermes endpoint (overrides auto-discovery)
+      --json             Output raw JSON response
+      --no-stream        Disable streaming
+  -t, --timeout <ms>     Request timeout (default: 120000)
+  -h, --help            Show this help
+
+Examples:
+  hermes "Hello, Hermes!"
+  hermes "What's 2+2?" --no-stream
+  hermes "Explain AI" -e http://localhost:9000
+`);
+}
+
+export { parseArgs };

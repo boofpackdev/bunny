@@ -8,28 +8,15 @@ import {
   printError,
 } from './ui';
 import { HermesError, exitCodes } from './errors';
-import { setupCLI } from './cli';
+import { parseArgs } from './cli';
 import type { CLIOptions } from './cli';
 
 async function main() {
-  const cli = setupCLI();
-  cli.parse(process.argv);
+  const { message, options } = parseArgs();
 
-  const parsed = cli.parse(process.argv);
-
-  if (!parsed.command) {
-    cli.outputHelp();
-    process.exit(exitCodes.CLI_ERROR);
-  }
-
-  const { message, options } = parsed.command as unknown as {
-    message: string;
-    options: CLIOptions;
-  };
-
-  const stream = options.stream ?? true;
-  const jsonOutput = options.json ?? false;
-  const timeout = options.timeout ?? 120000;
+  const stream = options.stream;
+  const jsonOutput = options.json;
+  const timeout = options.timeout;
 
   startSpinner('Discovering Hermes endpoint...');
 
@@ -58,7 +45,7 @@ async function main() {
 
     succeedSpinner('Response complete');
     process.exit(exitCodes.SUCCESS);
-  } catch (error: unknown) {
+  } catch (error) {
     if (error instanceof HermesError) {
       failSpinner(error.message);
       process.exit(error.code);
@@ -70,5 +57,4 @@ async function main() {
   }
 }
 
-// Bootstrap
 main();
