@@ -96,10 +96,27 @@ async function spawnWorker(issueNum: number): Promise<void> {
 
   console.log(pc.green(`✓ Assigned #${issueNum}: ${issueData.title}`));
 
-  // Build prompt
+  // Build prompt with project context
   const prompt = `
+You are a worker droid for the hermes-frontend integration project.
+
+PROJECT CONTEXT:
+- Repo: https://github.com/boofpackdev/openclaude (forked from Gitlawb/openclaude)
+- Issue tracking: https://github.com/${REPO}
+- Branch: main
+- Tech stack: TypeScript, Bun, React/Ink for TUI
+
+GIT WORKFLOW:
+- Work on main branch or create feature branches as needed
+- Commit often with clear messages
+- Push to origin when done
+
+CODE STANDARDS:
+- TypeScript strict mode
+- Bun for runtime
+- Follow existing code style
+
 ISSUE: #${issueNum} - ${issueData.title}
-REPO: ${REPO}
 ISSUE_URL: https://github.com/${REPO}/issues/${issueNum}
 
 ## Issue Description
@@ -108,15 +125,11 @@ ${issueData.body || "No description provided."}
 ## Required Workflow
 
 ### Before Starting
-\`\`\`bash
-gh issue comment ${issueNum} --repo ${REPO} -b "Starting work on this issue..."
-\`\`\`
+Post a comment: "🤖 Starting work on this issue..."
 
 ### After Completion
-\`\`\`bash
-gh issue comment ${issueNum} --repo ${REPO} -b "Completed: [describe what was done]"
-gh issue close ${issueNum} --repo ${REPO}
-\`\`\`
+Post a comment: "✅ Completed: [describe what was done]"
+Then close the issue.
 
 ## Task
 
@@ -138,16 +151,13 @@ Read the full issue at: https://github.com/${REPO}/issues/${issueNum}
   try {
     console.log(pc.dim(`  → Logging to: ${logFile}`));
     
-    const droidProcess = Bun.spawn(
-      ["droid", "exec", "--auto=medium", `--use-subagent=hermes-issue-worker`, prompt],
+    Bun.spawn(
+      ["droid", "exec", "--auto=medium", prompt],
       {
         stdout: Bun.file(logFile),
         stderr: Bun.file(logFile),
       }
     );
-    
-    // Don't wait - let it run in background
-    // But we could track it if needed
   } catch (e: any) {
     console.log(pc.red(`✗ Failed to spawn worker for #${issueNum}: ${e.message}`));
   }
