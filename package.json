@@ -12,7 +12,8 @@
     "complete": "bun run src/commands/complete.ts",
     "assign": "bun run src/commands/assign.ts",
     "batch-assign": "bun run src/commands/batch-assign.ts",
-    "workers": "bun run src/commands/workers.ts"
+    "workers": "bun run src/commands/workers.ts",
+    "workers-kill": "bun run src/commands/workers-kill.ts"
   },
   "dependencies": {
     "picocolors": "^1.1.1",
