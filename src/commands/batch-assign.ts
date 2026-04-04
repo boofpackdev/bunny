@@ -10,8 +10,10 @@
 
 import { execSync } from "child_process";
 import pc from "picocolors";
+import { existsSync, mkdirSync } from "fs";
 
 const REPO = "boofpackdev/bunny";
+const LOG_DIR = ".factory/logs/issues";
 
 async function main() {
   const args = Bun.argv.slice(2);
@@ -58,6 +60,10 @@ async function main() {
   await Promise.all(workers);
   
   console.log(pc.green(`\n✓ All ${issueNumbers.length} workers spawned!\n`));
+  console.log(pc.dim("To monitor workers:"));
+  console.log(pc.dim("  bun run workers           - show status"));
+  console.log(pc.dim("  bun run workers stream    - stream all worker logs"));
+  console.log(pc.dim("  bun run workers stream 3  - stream issue #3\n"));
 }
 
 async function spawnWorker(issueNum: number): Promise<void> {
@@ -122,12 +128,26 @@ gh issue close ${issueNum} --repo ${REPO}
 Read the full issue at: https://github.com/${REPO}/issues/${issueNum}
 `.trim();
 
-  // Spawn worker (fire and forget - it runs in background)
+  // Ensure log directory exists
+  if (!existsSync(LOG_DIR)) {
+    mkdirSync(LOG_DIR, { recursive: true });
+  }
+  const logFile = `${LOG_DIR}/issue-${issueNum}.log`;
+
+  // Spawn worker with output going to log file
   try {
-    Bun.spawn(["droid", "exec", "--auto=medium", `--use-subagent=hermes-issue-worker`, prompt], {
-      stdout: "inherit",
-      stderr: "inherit",
-    });
+    console.log(pc.dim(`  → Logging to: ${logFile}`));
+    
+    const droidProcess = Bun.spawn(
+      ["droid", "exec", "--auto=medium", `--use-subagent=hermes-issue-worker`, prompt],
+      {
+        stdout: Bun.file(logFile),
+        stderr: Bun.file(logFile),
+      }
+    );
+    
+    // Don't wait - let it run in background
+    // But we could track it if needed
   } catch (e: any) {
     console.log(pc.red(`✗ Failed to spawn worker for #${issueNum}: ${e.message}`));
   }
