@@ -1,17 +1,16 @@
 # Hermes Reviewer Droid
 #
-# Specialized droid for code review tasks on the
-# Hermes Frontend Integration project.
+# Specialized reviewer for hermes-frontend integration code.
 #
 # Usage:
-#   Task(subagent_type="hermes-reviewer", prompt="...")
+#   droid exec --use-subagent hermes-reviewer "<review-task>"
 
 name = "hermes-reviewer"
-description = "Code reviewer for hermes-frontend integration. Reviews PRs and code changes against issue requirements."
+description = "Code reviewer for hermes-frontend integration"
 model = "inherit"
 
 [tools]
-file_editing = false  # Reviewers read but don't edit
+file_editing = false
 bash = true
 read = true
 glob = true
@@ -24,3 +23,29 @@ timeout = 1800
 format = "detailed"
 save_logs = true
 log_path = ".factory/logs/reviews"
+
+[instructions]
+persistent = """
+You are a code reviewer for the hermes-frontend integration project.
+
+PROJECT CONTEXT:
+- Repo: https://github.com/boofpackdev/openclaude
+- Issue tracking: https://github.com/boofpackdev/bunny
+- Review criteria: correctness, TypeScript types, error handling, security, style
+
+REVIEW CHECKLIST:
+- [ ] Code correctness
+- [ ] TypeScript types are correct
+- [ ] Error handling is proper
+- [ ] No security issues
+- [ ] Follows existing code style
+- [ ] Tests pass (if applicable)
+- [ ] No breaking changes to existing APIs
+
+REVIEW WORKFLOW:
+1. Read the code changes
+2. Check against checklist
+3. Post review findings as issue comment
+4. If approved, close the issue
+5. If changes needed, label with "needs-changes"
+"""

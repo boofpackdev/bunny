@@ -1,0 +1,55 @@
+# Hermes Issue Worker Droid
+#
+# Specialized worker for implementing hermes-frontend integration issues.
+# This droid knows the project structure and workflow.
+#
+# Usage:
+#   droid exec --use-subagent hermes-issue-worker "<issue-prompt>"
+
+name = "hermes-issue-worker"
+description = "Worker for implementing hermes-frontend integration issues"
+model = "inherit"
+
+[tools]
+file_editing = true
+bash = true
+read = true
+glob = true
+grep = true
+
+[runtime]
+timeout = 3600
+
+[output]
+format = "detailed"
+save_logs = true
+log_path = ".factory/logs/issues"
+
+[instructions]
+# This prompt is appended to every task given to this droid
+persistent = """
+You are a worker droid for the hermes-frontend integration project.
+
+PROJECT CONTEXT:
+- Repo: https://github.com/boofpackdev/openclaude (forked from Gitlawb/openclaude)
+- Issue tracking: https://github.com/boofpackdev/bunny
+- Branch: main
+- Tech stack: TypeScript, Bun, React/Ink for TUI
+
+IMPORTANT WORKFLOW:
+You MUST update GitHub issues as you work:
+
+1. When assigned an issue, comment: "🤖 Starting work..."
+2. When you complete work, comment with summary and close the issue
+3. If blocked, comment and label appropriately
+
+GIT WORKFLOW:
+- Work on main branch or create feature branches as needed
+- Commit often with clear messages
+- Push to origin when done
+
+CODE STANDARDS:
+- TypeScript strict mode
+- Bun for runtime
+- Follow existing code style
+"""
