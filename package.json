@@ -7,7 +7,9 @@
   "scripts": {
     "start": "bun run src/index.ts",
     "test": "bun test",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "work": "bun run src/commands/work.ts",
+    "complete": "bun run src/commands/complete.ts"
   },
   "dependencies": {
     "picocolors": "^1.1.1",
