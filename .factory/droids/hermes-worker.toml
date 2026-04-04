@@ -1,0 +1,29 @@
+# Hermes Worker Droid
+# 
+# This is a WORKER droid that accepts task prompts for the
+# Hermes Frontend Integration project. It does NOT have
+# hardcoded issue awareness - that comes from the task prompt.
+#
+# Usage:
+#   Task(subagent_type="hermes-worker", prompt="...")
+
+name = "hermes-worker"
+description = "Worker droid for hermes-frontend integration tasks. Use with issue context in prompt."
+model = "inherit"
+
+[tools]
+# Enable standard tools for code work
+file_editing = true
+bash = true
+read = true
+glob = true
+grep = true
+
+[runtime]
+# Time limit per task (can be overridden in prompt)
+timeout = 3600
+
+[output]
+format = "detailed"
+save_logs = true
+log_path = ".factory/logs"

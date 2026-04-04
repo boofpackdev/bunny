@@ -1,0 +1,26 @@
+# Hermes Reviewer Droid
+#
+# Specialized droid for code review tasks on the
+# Hermes Frontend Integration project.
+#
+# Usage:
+#   Task(subagent_type="hermes-reviewer", prompt="...")
+
+name = "hermes-reviewer"
+description = "Code reviewer for hermes-frontend integration. Reviews PRs and code changes against issue requirements."
+model = "inherit"
+
+[tools]
+file_editing = false  # Reviewers read but don't edit
+bash = true
+read = true
+glob = true
+grep = true
+
+[runtime]
+timeout = 1800
+
+[output]
+format = "detailed"
+save_logs = true
+log_path = ".factory/logs/reviews"
