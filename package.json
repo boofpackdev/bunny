@@ -9,7 +9,8 @@
     "test": "bun test",
     "typecheck": "tsc --noEmit",
     "work": "bun run src/commands/work.ts",
-    "complete": "bun run src/commands/complete.ts"
+    "complete": "bun run src/commands/complete.ts",
+    "assign": "bun run src/commands/assign.ts"
   },
   "dependencies": {
     "picocolors": "^1.1.1",
